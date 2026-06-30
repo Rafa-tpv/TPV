@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>TPV Cine de Verano</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  font-family: Arial;
+  background:#111;
+  color:white;
+  margin:0;
+  text-align:center;
+}
+
+h1{margin:10px;}
+
+#total{
+  font-size:42px;
+  color:#00ff99;
+  margin:10px;
+}
+
+details{
+  margin:10px;
+  background:#222;
+  border-radius:10px;
+  padding:5px;
+}
+
+summary{
+  font-size:22px;
+  padding:10px;
+  cursor:pointer;
+  color:#ffd700;
+}
+
+button{
+  width:95%;
+  font-size:24px;
+  padding:18px;
+  margin:6px;
+  border:none;
+  border-radius:12px;
+  color:white;
+}
+
+.prod{background:#333;}
+.act{background:#ff9800;}
+.del{background:#e74c3c;}
+.ok{background:#2ecc71;}
+.fast{background:#555;}
+
+#list{
+  margin:10px;
+  font-size:18px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎬 TPV Ambigú</h1>
+
+<div id="total">0,00 €</div>
+
+<!-- BEBIDAS -->
+<details open>
+<summary>🥤 BEBIDAS</summary>
+
+<button class="prod" onclick="add(2.5,'Refresco')">Refresco 2,50€</button>
+<button class="prod" onclick="add(3,'Tercio Cruzcampo')">Tercio Cruzcampo 3,00€</button>
+<button class="prod" onclick="add(3,'Tercio Heineken')">Tercio Heineken 3,00€</button>
+<button class="prod" onclick="add(3,'Tercio sin gluten')">Tercio sin gluten 3,00€</button>
+<button class="prod" onclick="add(3,'Tinto de verano')">Tinto de verano 3,00€</button>
+<button class="prod" onclick="add(4.5,'Tinto de verano MACETA')">Tinto de verano MACETA 4,50€</button>
+<button class="prod" onclick="add(1.5,'Agua')">Agua 1,50€</button>
+<button class="prod" onclick="add(5,'Copas')">Copas 5,00€</button>
+<button class="prod" onclick="add(2.5'Rioja')">Rioja 2,50€</button>
+<button class="prod" onclick="add(2,5'Blanco')">Blanco 2,50€</button>
+
+</details>
+
+<!-- SNACKS -->
+<details>
+<summary>🍿 SNACKS</summary>
+
+<button class="prod" onclick="add(3.5,'Palomitas')">Palomitas 3,50€</button>
+<button class="prod" onclick="add(2,'Patatas')">Patatas 2,00€</button>
+<button class="prod" onclick="add(2,'Frutos secos')">Frutos secos 2,00€</button>
+<button class="prod" onclick="add(3,'Almendras')">Almendras 3,00€</button>
+<button class="prod" onclick="add(3,'Helados')">Helados 3,00€</button>
+
+</details>
+
+<!-- COMIDA -->
+<details>
+<summary>🍔 COMIDA</summary>
+
+<button class="prod" onclick="add(4,'Perrito XL')">Perrito XL 4,00€</button>
+<button class="prod" onclick="add(4,'Lomo al whisky')">Lomo al whisky 4,00€</button>
+<button class="prod" onclick="add(4,'Serranito')">Serranito 4,00€</button>
+<button class="prod" onclick="add(4,'Piripi')">Piripi 4,00€</button>
+<button class="prod" onclick="add(4,'Salmon y queso')">Salmon y queso 4,00€</button>
+<button class="prod" onclick="add(4,'Melva y morron')">Melva y morron 4,00€</button>
+<button class="prod" onclick="add(5,5'Bocata serranito')">Bocata serranito 5,50€</button>
+<button class="prod" onclick="add(4,'Lomo al roque')">Lomo al roque 4,00€</button>
+
+</details>
+
+<!-- COMIDA -->
+<details>
+<summary>🍔 COMIDA</summary>
+
+<button class="prod" onclick="add(4,5 'Ensaladilla')">Ensaladilla 4,50€</button>
+<button class="prod" onclick="add(4,5 'Aliño')">Aliño 4,50€</button>
+<button class="prod" onclick="add(4,'Tortilla de patatas')">Tortilla de patatas 4,00€</button>
+<button class="prod" onclick="add(1,5'Banderilla atun y queso')">Banderilla atun y queso 1,50€</button>
+<button class="prod" onclick="add(1,5,'Gilda anchoa')">Gilda anchoa 1,50€</button>
+<button class="prod" onclick="add(5,'Plato tomate aliñado')">Plato tomate aliñado 5,00€</button>
+<button class="prod" onclick="add(4,5'Plato queso')">Plato 4,50€</button>
+
+
+
+<hr>
+
+<h3>Pedido</h3>
+<div id="list">(vacío)</div>
+
+<!-- BOTONES RÁPIDOS -->
+<button class="fast" onclick="repeat()">➕ +1 último</button>
+<button class="fast" onclick="addLast5()">➕ +5 último</button>
+
+<button class="act" onclick="undo()">↩ Último</button>
+<button class="del" onclick="clearAll()">🗑 Borrar</button>
+<button class="ok" onclick="pay()">💶 Cobrar</button>
+
+<script>
+
+let total = 0;
+let items = [];
+let lastItem = null;
+
+// sonido click
+function beep(){
+  try{
+    let ctx = new (window.AudioContext || window.webkitAudioContext)();
+    let osc = ctx.createOscillator();
+    osc.frequency.value = 800;
+    osc.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.05);
+  }catch(e){}
+}
+
+function add(price,name){
+  total += price;
+  items.push({name:name, price:price});
+  lastItem = {name:name, price:price};
+  beep();
+  update();
+}
+
+function repeat(){
+  if(!lastItem) return;
+  add(lastItem.price, lastItem.name);
+}
+
+function addLast5(){
+  if(!lastItem) return;
+  for(let i=0;i<5;i++){
+    add(lastItem.price, lastItem.name);
+  }
+}
+
+function undo(){
+  if(items.length === 0) return;
+
+  let last = items.pop();
+  total -= last.price;
+
+  update();
+}
+
+function clearAll(){
+  total = 0;
+  items = [];
+  lastItem = null;
+  update();
+}
+
+function update(){
+
+  document.getElementById("total").innerText = total.toFixed(2) + " €";
+
+  if(items.length === 0){
+    document.getElementById("list").innerHTML = "(vacío)";
+    return;
+  }
+
+  let count = {};
+
+  for(let i of items){
+    count[i.name] = (count[i.name] || 0) + 1;
+  }
+
+  let html = "";
+
+  for(let k in count){
+    html += `${k} x${count[k]}<br>`;
+  }
+
+  document.getElementById("list").innerHTML = html;
+}
+
+function pay(){
+  let paid = prompt("¿Cuánto te pagan?");
+  paid = parseFloat(paid);
+
+  if(isNaN(paid)) return;
+
+  let change = paid - total;
+
+  alert(
+    "TOTAL: " + total.toFixed(2) + "€\n" +
+    "PAGADO: " + paid.toFixed(2) + "€\n" +
+    "CAMBIO: " + change.toFixed(2) + "€"
+  );
+
+  clearAll();
+}
+
+update();
+
+</script>
